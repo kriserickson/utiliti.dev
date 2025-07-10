@@ -1,11 +1,13 @@
 node_modules
 
 /.cache
-/.wrangler
-/functions
-/public/build
+/build
 .env
+
+.wrangler
 .dev.vars
-/test-results/
+.react-router/
+
 /playwright-report/
 /playwright/.cache/
+test-results

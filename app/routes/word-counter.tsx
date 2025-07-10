@@ -2,13 +2,7 @@ import Box, { BoxContent, BoxInfo, BoxTitle } from "~/components/box";
 import Copy from "~/components/copy";
 import { metaHelper } from "~/utils/meta";
 import { utilities } from "~/utilities";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { throttle } from "~/utils/throttle";
 import ContentWrapper from "~/components/content-wrapper";
 import { Transition } from "@headlessui/react";
@@ -46,7 +40,7 @@ interface Info {
  *
  * @return  {Array}   The new array of code points.
  */
-function decode(input: string) {
+function decode(input: string): number[] {
   const output = [];
   let counter = 0;
   const length = input.length;
@@ -150,19 +144,16 @@ export default function WordCounter() {
   );
   const [info, setInfo] = useState<Info>(count(content, options));
 
-  const throttledSetContent = useMemo(
-    () => throttle(setContent, 1000),
-    [setContent],
-  );
+  const throttledSetContent = throttle(setContent, 1000);
 
   // text change handler
-  const onChange = useCallback(() => {
+  const onChange = () => {
     if (!inputRef.current) {
       return;
     }
 
     throttledSetContent(inputRef.current.value || "");
-  }, [throttledSetContent]);
+  };
 
   // whenever text changes (storage backend), re-calculate info
   useEffect(() => {
@@ -211,7 +202,7 @@ export default function WordCounter() {
       <Box>
         <BoxTitle title="Input">
           <div>
-            <Copy content={inputRef.current?.value || ""} />
+            <Copy content={() => inputRef.current?.value || ""} />
           </div>
         </BoxTitle>
 
@@ -249,13 +240,14 @@ export default function WordCounter() {
         enterFrom="opacity-0"
         enterTo="opacity-100"
         className="mt-6"
+        as="div"
       >
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-x-3 gap-y-6">
           <div className="flex flex-col w-full border rounded-lg bg-zinc-700 border-zinc-600">
             <div className="px-3 py-2 border-b border-gray-600 font-bold">
               Detail
             </div>
-            <div className="flex flex-grow bg-zinc-800 not-prose rounded-b-lg">
+            <div className="flex grow bg-zinc-800 not-prose rounded-b-lg">
               <div className="w-full">
                 <table className="w-full">
                   <tbody>
@@ -289,7 +281,7 @@ export default function WordCounter() {
                               aria-hidden="true"
                             />
                           </TooltipTrigger>
-                          <TooltipContent className="inline-block px-2 py-1 text-sm font-medium text-white rounded-lg shadow-sm bg-zinc-700">
+                          <TooltipContent className="inline-block px-2 py-1 text-sm font-medium text-white rounded-lg shadow-xs bg-zinc-700">
                             Based on an average reading speed of 275 words per
                             minute.
                           </TooltipContent>
@@ -309,7 +301,7 @@ export default function WordCounter() {
                               aria-hidden="true"
                             />
                           </TooltipTrigger>
-                          <TooltipContent className="inline-block px-2 py-1 text-sm font-medium text-white rounded-lg shadow-sm bg-zinc-700">
+                          <TooltipContent className="inline-block px-2 py-1 text-sm font-medium text-white rounded-lg shadow-xs bg-zinc-700">
                             Based on an average speaking speed of 180 words per
                             minute.
                           </TooltipContent>
@@ -330,7 +322,7 @@ export default function WordCounter() {
                     id="filter-common-words"
                     type="checkbox"
                     checked={options.filterCommonWords}
-                    className="w-4 h-4 border rounded focus:ring-3 bg-zinc-700 border-zinc-600 focus:ring-orange-600 ring-offset-zinc-800 focus:ring-offset-zinc-800 text-orange-600"
+                    className="w-4 h-4 border rounded-sm focus:ring-3 bg-zinc-700 border-zinc-600 focus:ring-orange-600 ring-offset-zinc-800 focus:ring-offset-zinc-800 text-orange-600"
                     onChange={(e) => {
                       setOptions({
                         ...options,

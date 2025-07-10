@@ -1,10 +1,9 @@
 import ContentWrapper from "~/components/content-wrapper";
 import Box, { BoxContent, BoxTitle } from "~/components/box";
-import type { ChangeEvent } from "react";
-import { useCallback, useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import Copy from "~/components/copy";
 import ReadOnlyTextArea from "~/components/read-only-textarea";
-import { v1, v4 } from "uuid";
+import { v1, v4, v6, v7 } from "uuid";
 import { metaHelper } from "~/utils/meta";
 import { utilities } from "~/utilities";
 import NumberInput from "~/components/number-input";
@@ -16,23 +15,28 @@ export default function UuidGenerator() {
   const [number, setNumber] = useState(1);
   const [version, setVersion] = useState<number>(4);
 
-  const onChangeNumber = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setNumber(Math.min(Math.max(parseInt(e.target.value, 10), 1), 500));
-    },
-    [setNumber],
-  );
+  const onChangeNumber = (e: ChangeEvent<HTMLInputElement>) => {
+    setNumber(Math.min(Math.max(parseInt(e.target.value, 10), 1), 500));
+  };
 
-  const onChangeVersion = useCallback(
-    (v: string) => {
-      setVersion(parseInt(v, 10));
-    },
-    [setVersion],
-  );
+  const onChangeVersion = (v: string) => {
+    setVersion(parseInt(v, 10));
+  };
 
-  const output = Array.from(Array(number), () =>
-    version === 1 ? v1() : v4(),
-  ).join("\n");
+  const output = Array.from(Array(number), () => {
+    switch (version) {
+      case 1:
+        return v1();
+      case 4:
+        return v4();
+      case 6:
+        return v6();
+      case 7:
+        return v7();
+      default:
+        return v4();
+    }
+  }).join("\n");
 
   return (
     <ContentWrapper>
@@ -59,6 +63,8 @@ export default function UuidGenerator() {
                 options={[
                   { id: "1", label: "v1" },
                   { id: "4", label: "v4" },
+                  { id: "6", label: "v6" },
+                  { id: "7", label: "v7" },
                 ]}
                 onOptionChange={onChangeVersion}
               />

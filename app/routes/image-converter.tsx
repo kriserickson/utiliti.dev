@@ -1,7 +1,7 @@
 import { metaHelper } from "~/utils/meta";
 import { utilities } from "~/utilities";
 import Box, { BoxButtons, BoxContent, BoxTitle } from "~/components/box";
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import ContentWrapper from "~/components/content-wrapper";
 import ReadFile from "~/components/read-file";
@@ -10,16 +10,14 @@ import { Transition } from "@headlessui/react";
 import Dropdown from "~/components/dropdown";
 import JSZip from "jszip";
 import { convertToFileFormat } from "~/utils/convert-image-file";
-import { NativeTypes } from "react-dnd-html5-backend";
-import type { DropTargetMonitor } from "react-dnd";
-import { useDrop } from "react-dnd";
 import {
   ArrowDownOnSquareIcon,
   CloudArrowUpIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { classNames } from "~/common";
-import NumberInput from "~/components/number-input";
+import { type DropTargetMonitor, useDrop } from "react-dnd";
+import { NativeTypes } from "react-dnd-html5-backend";
 
 export const meta = metaHelper(
   utilities.imageConverter.name,
@@ -60,48 +58,14 @@ export default function ImageConverter() {
   const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState(500);
 
-  // cache computation for files
-  // the only reason we need this is that removing a file changes `files`, which causes dataUrls to be re-calculated
-  const convertFile = useCallback(
-    (file: File) => {
-      let resizeType = ResizeType.none;
-      switch (resize) {
-        case "none":
-          resizeType = ResizeType.none;
-          break;
-        case "large":
-          resizeType = ResizeType.large;
-          break;
-        case "small":
-          resizeType = ResizeType.small;
-          break;
-        case "square":
-          resizeType = ResizeType.square;
-          break;
-        case "width":
-          resizeType = ResizeType.width;
-          break;
-        case "height":
-          resizeType = ResizeType.height;
-          break;
-      }
-      return convertToFileFormat(
-        file,
-        format,
-        parseInt(quality, 10),
-        resizeType,
-        size,
-      );
-    },
-    [format, quality, resize, size],
-  );
-
   // materialized state - we need each file as a data url
   useEffect(() => {
-    Promise.all(files.map(convertFile)).then(setDataUrls);
-  }, [files, convertFile]);
+    Promise.all(
+      files.map((it) => convertToFileFormat(it, format, parseInt(quality, 10))),
+    ).then(setDataUrls);
+  }, [files]);
 
-  const onDownloadZip = useCallback(async () => {
+  const onDownloadZip = async () => {
     const zip: JSZip = new JSZip();
 
     for (let i = 0; i < files.length; i++) {
@@ -129,40 +93,17 @@ export default function ImageConverter() {
 
     // remove the link from the DOM
     document.body.removeChild(link);
-  }, [files, format]);
+  };
 
-  const onError = useCallback(
-    (error: string) => {
-      setError(error);
-    },
-    [setError],
-  );
+  const onDownloadImage = (index: number) => {
+    const link = document.createElement("a");
+    link.href = dataUrls[index];
+    link.download = renameFile(files[index], format);
+    link.click();
+  };
 
-  const onRemoveImage = useCallback(
-    (index: number) => {
-      setFiles(files.filter((_, i) => i !== index));
-    },
-    [files],
-  );
-
-  const onDownloadImage = useCallback(
-    (index: number) => {
-      const link = document.createElement("a");
-      link.href = dataUrls[index];
-      link.download = renameFile(files[index], format);
-      link.click();
-    },
-    [dataUrls, files, format],
-  );
-
-  const onChangeSize = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setSize(Math.min(Math.max(parseInt(e.target.value, 10), 1), 500));
-    },
-    [setSize],
-  );
-
-  const [{ canDrop, isOver }, drop] = useDrop(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, drop] = useDrop(
     () => ({
       accept: [NativeTypes.FILE],
       drop(item: { files: File[] }) {
@@ -184,7 +125,8 @@ export default function ImageConverter() {
     [files],
   );
 
-  const isActive = canDrop && isOver;
+  // const isActive = canDrop && isOver;
+  const isActive = false;
 
   return (
     <ContentWrapper>
@@ -215,38 +157,42 @@ export default function ImageConverter() {
                 </div>
               ) : (
                 <div className="grid grid-cols-4 gap-4 p-2">
-                  {files.map((file, index) => {
-                    return dataUrls[index] ? (
-                      <div key={index} className="relative">
-                        <img
-                          className="w-full h-full aspect-square object-cover rounded cursor-pointer"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            onDownloadImage(index);
-                          }}
-                          src={dataUrls[index]}
-                          key={index}
-                          alt={file.name}
-                        />
+                  {files.map((file, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        className="w-full h-full aspect-square object-cover rounded-sm cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onDownloadImage(index);
+                        }}
+                        src={dataUrls[index]}
+                        key={index}
+                        alt={file.name}
+                      />
 
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            onRemoveImage(index);
-                          }}
-                          className="absolute top-1 right-1 text-red-600 hover:text-red-800"
-                        >
-                          <XCircleIcon className="h-6 w-6" />
-                          <span className="sr-only">Remove Image</span>
-                        </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setFiles(files.filter((_, i) => i !== index));
+                        }}
+                        className="absolute top-1 right-1 text-red-600 hover:text-red-800"
+                      >
+                        <XCircleIcon className="h-6 w-6" />
+                        <span className="sr-only">Remove Image</span>
+                      </button>
 
-                        <button className="absolute bottom-1 right-1 text-orange-600 hover:text-orange-800">
-                          <ArrowDownOnSquareIcon className="h-6 w-6" />
-                          <span className="sr-only">Download Image</span>
-                        </button>
-                      </div>
-                    ) : null;
-                  })}
+                      <button
+                        className="absolute bottom-1 right-1 text-orange-600 hover:text-orange-800"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onDownloadImage(index);
+                        }}
+                      >
+                        <ArrowDownOnSquareIcon className="h-6 w-6" />
+                        <span className="sr-only">Download Image</span>
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </label>
@@ -309,7 +255,7 @@ export default function ImageConverter() {
             <ReadFile
               accept="image/*"
               onLoad={(it) => setFiles([...files, ...it])}
-              onError={onError}
+              onError={setError}
               multiple={true}
             />
           </div>
@@ -325,6 +271,7 @@ export default function ImageConverter() {
         enterFrom="opacity-0"
         enterTo="opacity-100"
         className="mt-6"
+        as="div"
       >
         <Box>
           <BoxTitle title="Error" />

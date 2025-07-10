@@ -2,10 +2,9 @@ import ContentWrapper from "~/components/content-wrapper";
 import { metaHelper } from "~/utils/meta";
 import { utilities } from "~/utilities";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import React from "react";
 import Button from "~/components/button";
-import type { ActionFunction } from "@remix-run/router";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import type { ActionFunction } from "react-router";
+import { Form, useActionData, useNavigation } from "react-router";
 import { Transition } from "@headlessui/react";
 import Copy from "~/components/copy";
 
@@ -90,7 +89,6 @@ function typeToString(type: number): string {
 
 export const action: ActionFunction = async ({
   request,
-  context,
 }): Promise<Response[]> => {
   const formData = await request.formData();
   const domain = formData.get("domain") as string;
@@ -108,6 +106,7 @@ export const action: ActionFunction = async ({
 export default function NsLookup() {
   const data = useActionData<Response[]>();
   const navigation = useNavigation();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isEmpty = data && data.every(([_, rows]) => rows === null);
 
   return (
@@ -115,7 +114,7 @@ export default function NsLookup() {
       <h1>NS Lookup</h1>
 
       <p>
-        Uses Cloudflare's DNS-over-HTTPS (DOH){" "}
+        Uses Cloudflare&apos;s DNS-over-HTTPS (DOH){" "}
         <a
           href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/"
           target="_blank"
@@ -126,7 +125,7 @@ export default function NsLookup() {
         to return information about the domains DNS records.
       </p>
 
-      <Form method="post">
+      <Form method="post" viewTransition={true}>
         <label
           htmlFor="domain"
           className="mb-2 text-sm font-medium sr-only text-white"
@@ -163,6 +162,7 @@ export default function NsLookup() {
         enterFrom="opacity-0"
         enterTo="opacity-100"
         className="not-prose mt-6"
+        as="div"
       >
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
           <table className="w-full text-sm text-left text-gray-400">

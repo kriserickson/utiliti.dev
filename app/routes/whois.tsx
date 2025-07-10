@@ -2,10 +2,9 @@ import ContentWrapper from "~/components/content-wrapper";
 import { metaHelper } from "~/utils/meta";
 import { utilities } from "~/utilities";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import React from "react";
 import Button from "~/components/button";
-import type { ActionFunction } from "@remix-run/router";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import type { ActionFunction } from "react-router";
+import { Form, useActionData, useNavigation } from "react-router";
 import { Transition } from "@headlessui/react";
 import Box, { BoxContent, BoxTitle } from "~/components/box";
 import Copy from "~/components/copy";
@@ -38,7 +37,7 @@ export const action: ActionFunction = async ({
 }): Promise<Response> => {
   const formData = await request.formData();
   const domain = formData.get("domain") as string;
-  const CF_WHOIS_KEY = context.env.CF_WHOIS_KEY as string;
+  const CF_WHOIS_KEY = context.cloudflare.env.CF_WHOIS_KEY;
 
   return fetch(
     `https://api.cloudflare.com/client/v4/accounts/3dc234b4097803f4dfbdfdcaf8dc029b/intel/whois?domain=${domain}`,
@@ -70,7 +69,7 @@ export default function Whois() {
       </p>
 
       <p>
-        Utiliti uses Cloudflare's{" "}
+        Utiliti uses Cloudflare&apos;s{" "}
         <a
           href="https://developers.cloudflare.com/api/operations/whois-record-get-whois-record"
           target="_blank"
@@ -81,7 +80,7 @@ export default function Whois() {
         to return information about the domain name.
       </p>
 
-      <Form method="post">
+      <Form method="post" viewTransition={true}>
         <label
           htmlFor="domain"
           className="mb-2 text-sm font-medium sr-only text-white"
@@ -118,6 +117,7 @@ export default function Whois() {
         enterFrom="opacity-0"
         enterTo="opacity-100"
         className="not-prose mt-6"
+        as="div"
       >
         {data && !data.success && (
           <Box>

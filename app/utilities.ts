@@ -1,4 +1,4 @@
-import Routes from "~/routes";
+import { Routes } from "./routes";
 
 /**
  * This file serves as an index of all available utilities and the content gets re-used in places like the sidebar
@@ -17,6 +17,11 @@ export const utilities: Record<
     name: "JSON",
     description: "View complex JSON documents as a tree structure.",
     url: Routes.JSON,
+  },
+  prettier: {
+    name: "Prettier",
+    description: "Run prettier on your input.",
+    url: Routes.PRETTIER,
   },
   base64: {
     name: "Base64",
@@ -59,6 +64,11 @@ export const utilities: Record<
     name: "Lorem Ipsum",
     description: "Generate Lorem Ipsum placeholder text.",
     url: Routes.LOREM_IPSUM,
+  },
+  password: {
+    name: "Password",
+    description: "Generate Cryptographically Secure Password.",
+    url: Routes.PASSWORD_GENERATOR,
   },
   uuid: {
     name: "UUID",
@@ -110,6 +120,7 @@ export const sidebar = [
     children: [
       utilities.privateNotes,
       utilities.json,
+      utilities.prettier,
       utilities.markdownToHtml,
       utilities.dataurl,
       utilities.imageConverter,
@@ -124,7 +135,12 @@ export const sidebar = [
   },
   {
     name: "Random Generators",
-    children: [utilities.loremIpsum, utilities.uuid, utilities.cuid],
+    children: [
+      utilities.loremIpsum,
+      utilities.password,
+      utilities.uuid,
+      utilities.cuid,
+    ],
   },
   {
     name: "DNS",

@@ -1,6 +1,4 @@
 import Box, { BoxContent, BoxTitle } from "~/components/box";
-import type { ChangeEvent } from "react";
-import React, { useCallback } from "react";
 import ContentWrapper from "~/components/content-wrapper";
 import { utilities } from "~/utilities";
 import { metaHelper } from "~/utils/meta";
@@ -13,6 +11,7 @@ import { noop } from "~/common";
 import { useLocalStorage } from "~/hooks/use-local-storage";
 import NumberInput from "~/components/number-input";
 import Dropdown from "~/components/dropdown";
+import { type ChangeEvent } from "react";
 
 export const meta = metaHelper(
   utilities.sqlFormatter.name,
@@ -25,7 +24,7 @@ function formatSql(
 ): string | null {
   try {
     return format(input, options);
-  } catch (e) {
+  } catch {
     // do nothing
   }
 
@@ -43,14 +42,11 @@ export default function SqlFormatter() {
     "2",
   );
 
-  const onChangeTabWidth = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setTabWidth(
-        Math.min(Math.max(parseInt(e.target.value, 10), 1), 8).toString(),
-      );
-    },
-    [setTabWidth],
-  );
+  const onChangeTabWidth = (e: ChangeEvent<HTMLInputElement>) => {
+    setTabWidth(
+      Math.min(Math.max(parseInt(e.target.value, 10), 1), 8).toString(),
+    );
+  };
 
   // @note: this could become a performance issue as input changes quite often
   // could introduce debounce here, but going to leave it until it becomes a problem
@@ -123,6 +119,7 @@ export default function SqlFormatter() {
         enterFrom="opacity-0"
         enterTo="opacity-100"
         className="mt-6"
+        as="div"
       >
         <Box>
           <BoxTitle title="Output">

@@ -1,13 +1,7 @@
 import { metaHelper } from "~/utils/meta";
 import { utilities } from "~/utilities";
 import Box, { BoxContent, BoxOptions, BoxTitle } from "~/components/box";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import ContentWrapper from "~/components/content-wrapper";
 import Copy from "~/components/copy";
 import { useHydrated } from "~/hooks/use-hydrated";
@@ -72,7 +66,7 @@ function CurrentTimestamp() {
             id="url-safe"
             type="checkbox"
             checked={isMilliSeconds}
-            className="w-4 h-4 border rounded focus:ring-3 bg-zinc-700 border-zinc-600 focus:ring-orange-600 ring-offset-zinc-800 focus:ring-offset-zinc-800 text-orange-600"
+            className="w-4 h-4 border rounded-sm focus:ring-3 bg-zinc-700 border-zinc-600 focus:ring-orange-600 ring-offset-zinc-800 focus:ring-offset-zinc-800 text-orange-600"
             onChange={(e) => setIsMilliSeconds(e.target.checked)}
           />
         </div>
@@ -118,28 +112,22 @@ export default function UnixTimestamp() {
     format: string;
   }>(null);
 
-  const initialDate = useMemo(
-    () => (hydrated ? new Date() : new Date("2023-04-16")),
-    [hydrated],
-  );
+  const initialDate = hydrated ? new Date() : new Date("2023-04-16");
 
-  const onInputConvert = useCallback(
-    (action: "timestamp" | "datetime") => {
-      const [date, format] =
-        action === "timestamp"
-          ? fromTimestamp(timestampRef.current?.value || "")
-          : [
-              new Date(
-                (dateRef.current?.valueAsNumber || 0) +
-                  initialDate.getTimezoneOffset() * 60 * 1000,
-              ),
-              "unknown",
-            ];
+  const onInputConvert = (action: "timestamp" | "datetime") => {
+    const [date, format] =
+      action === "timestamp"
+        ? fromTimestamp(timestampRef.current?.value || "")
+        : [
+            new Date(
+              (dateRef.current?.valueAsNumber || 0) +
+                initialDate.getTimezoneOffset() * 60 * 1000,
+            ),
+            "unknown",
+          ];
 
-      setInput({ action, value: date, format });
-    },
-    [setInput, initialDate],
-  );
+    setInput({ action, value: date, format });
+  };
 
   return (
     <ContentWrapper>
@@ -171,7 +159,7 @@ export default function UnixTimestamp() {
             <div className="pl-2">
               <button
                 type="submit"
-                className="inline-flex justify-center p-2 rounded cursor-pointer text-orange-600 hover:text-white hover:bg-orange-800"
+                className="inline-flex justify-center p-2 rounded-sm cursor-pointer text-orange-600 hover:text-white hover:bg-orange-800"
               >
                 <ArrowsRightLeftIcon className="w-5 h-5" />
                 <span className="sr-only">Convert</span>
@@ -199,7 +187,7 @@ export default function UnixTimestamp() {
             <div className="pl-2">
               <button
                 type="submit"
-                className="inline-flex justify-center p-2 rounded cursor-pointer text-orange-600 hover:text-white hover:bg-orange-800"
+                className="inline-flex justify-center p-2 rounded-sm cursor-pointer text-orange-600 hover:text-white hover:bg-orange-800"
               >
                 <ArrowsRightLeftIcon className="w-5 h-5" />
                 <span className="sr-only">Convert</span>
@@ -215,6 +203,7 @@ export default function UnixTimestamp() {
         enterFrom="opacity-0"
         enterTo="opacity-100"
         className="mt-6"
+        as="div"
       >
         {input && isNaN(input.value.getDate()) ? (
           <Box>
@@ -280,9 +269,10 @@ export default function UnixTimestamp() {
       </p>
 
       <p>
-        The Unix timestamp is also sometimes referred to as "Epoch time" or
-        "POSIX time". It can be converted to a human-readable date and time
-        using various software tools and programming libraries.
+        The Unix timestamp is also sometimes referred to as &quot;Epoch
+        time&quot; or &quot;POSIX time&quot;. It can be converted to a
+        human-readable date and time using various software tools and
+        programming libraries.
       </p>
     </ContentWrapper>
   );

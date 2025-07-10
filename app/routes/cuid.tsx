@@ -1,7 +1,6 @@
 import ContentWrapper from "~/components/content-wrapper";
 import Box, { BoxContent, BoxTitle } from "~/components/box";
-import type { ChangeEvent } from "react";
-import { useCallback, useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import Copy from "~/components/copy";
 import ReadOnlyTextArea from "~/components/read-only-textarea";
 import { init } from "@paralleldrive/cuid2";
@@ -20,19 +19,13 @@ export default function UuidGenerator() {
   // https://github.com/paralleldrive/cuid2/issues/18
   // const random = init({ random: crypto.getRandomValues });
 
-  const onChangeLength = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setLength(Math.min(Math.max(parseInt(e.target.value, 10), 5), 50));
-    },
-    [setLength],
-  );
+  const onChangeLength = (e: ChangeEvent<HTMLInputElement>) => {
+    setLength(Math.min(Math.max(parseInt(e.target.value, 10), 5), 50));
+  };
 
-  const onChangeNumber = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setNumber(Math.min(Math.max(parseInt(e.target.value, 10), 1), 500));
-    },
-    [setNumber],
-  );
+  const onChangeNumber = (e: ChangeEvent<HTMLInputElement>) => {
+    setNumber(Math.min(Math.max(parseInt(e.target.value, 10), 1), 500));
+  };
 
   const random = init({ length });
   const output = Array.from(Array(number), () => random()).join("\n");
@@ -54,7 +47,7 @@ export default function UuidGenerator() {
 
       <Box>
         <BoxTitle title="">
-          <div className="flex items-center justify-start flex-grow">
+          <div className="flex items-center justify-start grow">
             <label
               htmlFor="length"
               className="block text-sm font-medium text-gray-900 dark:text-white pr-2"

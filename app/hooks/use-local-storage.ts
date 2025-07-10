@@ -9,7 +9,7 @@ export function useLocalStorage<T>(
   const isHydrated = useHydrated();
   const [storedValue, setStoredValue] = useState(initialValue);
 
-  // moved the loading of stored value into an effect, so that we don't have any hydration issues with remix
+  // moved the loading of stored value into an effect, so that we don't have any hydration issues with react router
   useLayoutEffect(() => {
     if (typeof window === "undefined" || !isHydrated) {
       return;
