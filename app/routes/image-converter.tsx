@@ -1,7 +1,6 @@
 import { metaHelper } from "~/utils/meta";
 import { utilities } from "~/utilities";
 import Box, { BoxButtons, BoxContent, BoxTitle } from "~/components/box";
-import { useEffect, useState } from "react";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import ContentWrapper from "~/components/content-wrapper";
 import ReadFile from "~/components/read-file";
@@ -18,6 +17,7 @@ import {
 import { classNames } from "~/common";
 import { type DropTargetMonitor, useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
+import NumberInput from "~/components/number-input";
 
 export const meta = metaHelper(
   utilities.imageConverter.name,
@@ -60,10 +60,40 @@ export default function ImageConverter() {
 
   // materialized state - we need each file as a data url
   useEffect(() => {
+    let resizeType = ResizeType.none;
+    switch (resize) {
+      case "none":
+        resizeType = ResizeType.none;
+        break;
+      case "large":
+        resizeType = ResizeType.large;
+        break;
+      case "small":
+        resizeType = ResizeType.small;
+        break;
+      case "square":
+        resizeType = ResizeType.square;
+        break;
+      case "width":
+        resizeType = ResizeType.width;
+        break;
+      case "height":
+        resizeType = ResizeType.height;
+        break;
+    }
+
     Promise.all(
-      files.map((it) => convertToFileFormat(it, format, parseInt(quality, 10))),
+      files.map((it) =>
+        convertToFileFormat(
+          it,
+          format,
+          parseInt(quality, 10),
+          resizeType,
+          size,
+        ),
+      ),
     ).then(setDataUrls);
-  }, [files]);
+  }, [files, resize, size]);
 
   const onDownloadZip = async () => {
     const zip: JSZip = new JSZip();
@@ -102,6 +132,12 @@ export default function ImageConverter() {
     link.click();
   };
 
+  const onChangeSize = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setSize(Math.min(Math.max(parseInt(e.target.value, 10), 1), 500));
+    },
+    [setSize],
+  );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, drop] = useDrop(
     () => ({
